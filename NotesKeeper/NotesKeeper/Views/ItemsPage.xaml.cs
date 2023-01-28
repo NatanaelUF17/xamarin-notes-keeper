@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-
 using NotesKeeper.Models;
 using NotesKeeper.Views;
 using NotesKeeper.ViewModels;

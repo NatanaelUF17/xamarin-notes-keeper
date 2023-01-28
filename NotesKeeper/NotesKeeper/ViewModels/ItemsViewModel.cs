@@ -12,20 +12,21 @@ namespace NotesKeeper.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        private Item _selectedItem;
+        private Note _selectedNote;
 
-        public ObservableCollection<Item> Items { get; }
+        public ObservableCollection<Note> Notes { get; }
+
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get;  }
-        public Command<Item> ItemTapped { get; }
+        public Command<Note> ItemTapped { get; }
 
         public ItemsViewModel()
         {
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
+            Notes = new ObservableCollection<Note>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            ItemTapped = new Command<Item>(OnItemSelected);
+            ItemTapped = new Command<Note>(OnItemSelected);
 
             AddItemCommand = new Command(OnAddItem);
         }
@@ -36,11 +37,11 @@ namespace NotesKeeper.ViewModels
 
             try
             {
-                Items.Clear();
-                var items = await DataStore.GetItemsAsync(true);
-                foreach (var item in items)
+                Notes.Clear();
+                var notes = await PluralsightDataStore.GetNotesAsync();
+                foreach (var note in notes)
                 {
-                    Items.Add(item);
+                    Notes.Add(note);
                 }
             }
             catch (Exception ex)
@@ -56,15 +57,15 @@ namespace NotesKeeper.ViewModels
         public void OnAppearing()
         {
             IsBusy = true;
-            SelectedItem = null;
+            SelectedNote = null;
         }
 
-        public Item SelectedItem
+        public Note SelectedNote
         {
-            get => _selectedItem;
+            get => _selectedNote;
             set
             {
-                SetProperty(ref _selectedItem, value);
+                SetProperty(ref _selectedNote, value);
                 OnItemSelected(value);
             }
         }
@@ -74,13 +75,12 @@ namespace NotesKeeper.ViewModels
             await Shell.Current.GoToAsync(nameof(NewItemPage));
         }
 
-        async void OnItemSelected(Item item)
+        async void OnItemSelected(Note note)
         {
-            if (item == null)
+            if (note == null)
                 return;
 
-            // This will push the ItemDetailPage onto the navigation stack
-            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.ItemId)}={item.Id}");
+            await Shell.Current.GoToAsync($"{nameof(ItemDetailPage)}?{nameof(ItemDetailViewModel.NoteId)}={note.Id}");
         }
     }
 }

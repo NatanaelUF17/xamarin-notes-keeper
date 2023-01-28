@@ -1,57 +1,85 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using NotesKeeper.Models;
+using NotesKeeper.Services;
 using Xamarin.Forms;
 
 namespace NotesKeeper.ViewModels
 {
-    [QueryProperty(nameof(ItemId), nameof(ItemId))]
+    [QueryProperty(nameof(NoteId), nameof(NoteId))]
     public class ItemDetailViewModel : BaseViewModel
     {
-        private string itemId;
-        private string text;
-        private string description;
-        public string Id { get; set; }
+        public Note Note { get; set; }
+        public IList<string> CourseList { get; set; }
 
-        public string Text
+        public ItemDetailViewModel()
         {
-            get => text;
-            set => SetProperty(ref text, value);
+            Title = "Edit note";
+            Init();
+            Note = new Note();
         }
 
-        public string Description
+        public string NoteId
         {
-            get => description;
-            set => SetProperty(ref description, value);
-        }
-
-        public string ItemId
-        {
-            get
-            {
-                return itemId;
-            }
+            get => Note.Id;
             set
             {
-                itemId = value;
+                Note.Id = value;
                 LoadItemId(value);
             }
-        }        
+        }
 
-        public async void LoadItemId(string itemId)
+        public string NoteHeading
+        {
+            get => Note.Heading;
+            set
+            {
+                Note.Heading = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NoteText
+        {
+            get => Note.Text;
+            set
+            {
+                Note.Text = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NoteCourse
+        {
+            get => Note.Course;
+            set
+            {
+                Note.Course = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public async void LoadItemId(string noteId)
         {
             try
             {
-                var item = await DataStore.GetItemAsync(itemId);
-                Id = item.Id;
-                Text = item.Text;
-                Description = item.Description;
+                var item = await PluralsightDataStore.GetNoteAsync(noteId);
+
+                NoteHeading = item.Heading;
+                NoteText = item.Text;
+                NoteCourse = item.Course;
             }
             catch (Exception)
             {
                 Debug.WriteLine("Failed to Load Item");
             }
+        }
+
+        async void Init()
+        {
+            CourseList = await PluralsightDataStore.GetCoursesAsync();
         }
     }
 }

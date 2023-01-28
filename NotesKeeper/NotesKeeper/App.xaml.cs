@@ -13,7 +13,7 @@ namespace NotesKeeper
         {
             InitializeComponent();
 
-            DependencyService.Register<MockDataStore>();
+            DependencyService.Register<MockPluralsightDataStore>();
             MainPage = new AppShell();
         }
 

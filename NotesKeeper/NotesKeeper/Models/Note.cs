@@ -1,11 +1,12 @@
 ﻿using System;
 namespace NotesKeeper.Models
 {
-	public class Notes
+	public class Note
 	{
-		public Notes()
-		{
-		}
+		public string Id { get; set; }
+		public string Heading { get; set; }
+		public string Text { get; set; }
+		public string Course { get; set; }
 	}
 }
 

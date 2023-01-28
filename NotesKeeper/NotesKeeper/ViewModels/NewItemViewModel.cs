@@ -9,11 +9,13 @@ namespace NotesKeeper.ViewModels
 {
     public class NewItemViewModel : BaseViewModel
     {
-        private string text;
-        private string description;
+        public Note Note { get; set; }
+        public IList<string> Courses { get; set; }
 
         public NewItemViewModel()
         {
+            Init();
+            Note = new Note();
             SaveCommand = new Command(OnSave, ValidateSave);
             CancelCommand = new Command(OnCancel);
             this.PropertyChanged += 
@@ -22,20 +24,39 @@ namespace NotesKeeper.ViewModels
 
         private bool ValidateSave()
         {
-            return !String.IsNullOrWhiteSpace(text)
-                && !String.IsNullOrWhiteSpace(description);
+            return !String.IsNullOrWhiteSpace(NoteHeading)
+                && !String.IsNullOrWhiteSpace(NoteText)
+                && !String.IsNullOrWhiteSpace(NoteCourse);
         }
 
-        public string Text
+        public string NoteHeading
         {
-            get => text;
-            set => SetProperty(ref text, value);
+            get => Note.Heading;
+            set
+            {
+                Note.Heading = value;
+                OnPropertyChanged();
+            }
         }
 
-        public string Description
+        public string NoteText
         {
-            get => description;
-            set => SetProperty(ref description, value);
+            get => Note.Text;
+            set
+            {
+                Note.Text = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string NoteCourse
+        {
+            get => Note.Course;
+            set
+            {
+                Note.Course = value;
+                OnPropertyChanged();
+            }
         }
 
         public Command SaveCommand { get; }
@@ -43,23 +64,26 @@ namespace NotesKeeper.ViewModels
 
         private async void OnCancel()
         {
-            // This will pop the current page off the navigation stack
             await Shell.Current.GoToAsync("..");
         }
 
         private async void OnSave()
         {
-            Item newItem = new Item()
+            Note newNote = new Note()
             {
                 Id = Guid.NewGuid().ToString(),
-                Text = Text,
-                Description = Description
+                Heading = NoteHeading,
+                Text = NoteText,
+                Course = NoteCourse
             };
             
-            await DataStore.AddItemAsync(newItem);
-
-            // This will pop the current page off the navigation stack
+            await PluralsightDataStore.AddNoteAsync(newNote);
             await Shell.Current.GoToAsync("..");
+        }
+
+        async void Init()
+        {
+            Courses = await PluralsightDataStore.GetCoursesAsync();
         }
     }
 }
